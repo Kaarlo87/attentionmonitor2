@@ -95,6 +95,16 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   uint8_t who = 0;
+  uint8_t buf[12];
+
+  //Herätä anturi: kirjoita ohjausrekistereihin (tehdään kerran, ennen silmukkaa)
+  uint8_t ctrl1_arvo = 0x40;  //104 hz, +-2 g
+  uint8_t ctrl2_arvo = 0x40; //104 hz, +- 250 dps
+
+  HAL_I2C_Mem_Write(&hi2c1, 0x6A << 1, 0x10, 1, &ctrl1_arvo, 1, HAL_MAX_DELAY); //CTRL1_XL
+  HAL_I2C_Mem_Write(&hi2c1, 0x6A << 1, 0x11, 1, &ctrl2_arvo, 1, HAL_MAX_DELAY); //CTRL2_G
+
+
 
   /* USER CODE END 2 */
 
@@ -106,9 +116,20 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-	  HAL_I2C_Mem_Read(&hi2c1, 0x6A << 1, 0x0F, 1, &who, 1, HAL_MAX_DELAY);
-	  printf("WHO_AM_I:0x%02X\r\n", who);
-	  HAL_Delay(1000);
+	  //Lue 12 tavua anturidataa kerralla, alkaen tavusta rekisteristä 0x22
+	  HAL_I2C_Mem_Read(&hi2c1, 0x6A << 1, 0x22, 1, buf, 12, HAL_MAX_DELAY);
+
+	  //Liimaa tavuparit takaisin 16-bittisiksi lukemiksi
+	  int16_t gx = (int16_t) buf[1] << 8 | buf[0];
+	  int16_t gy = (int16_t) buf[3] << 8 | buf[2];
+	  int16_t gz = (int16_t) buf[5] << 8 | buf[4];
+	  int16_t ax = (int16_t) buf[7] << 8 | buf[6];
+	  int16_t ay = (int16_t) buf[9] << 8 | buf[8];
+	  int16_t az = (int16_t) buf[11] << 8 | buf[10];
+
+	  printf("ax:%6d ay:%6d az:%6d | gx:%6d gy:%6d gz:%6d\r\n", ax, ay, az, gx, gy, gz);
+
+	  HAL_Delay(100);
   }
   /* USER CODE END 3 */
 }
