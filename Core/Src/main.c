@@ -22,6 +22,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#include <stdio.h>
+#include <math.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -127,7 +129,11 @@ int main(void)
 	  int16_t ay = (int16_t) buf[9] << 8 | buf[8];
 	  int16_t az = (int16_t) buf[11] << 8 | buf[10];
 
-	  printf("ax:%6d ay:%6d az:%6d | gx:%6d gy:%6d gz:%6d\r\n", ax, ay, az, gx, gy, gz);
+	  float pitch_acc = atan2f(-ax, sqrtf(ay*ay + az*az)) * 180.0f / M_PI;
+
+	  float roll_acc = atan2f(ay, az) * 180.0f / M_PI;
+
+	  printf("pitch: %.1f  roll: %.1f\r\n", pitch_acc, roll_acc);
 
 	  HAL_Delay(100);
   }
