@@ -107,8 +107,10 @@ int main(void)
   HAL_I2C_Mem_Write(&hi2c1, 0x6A << 1, 0x10, 1, &ctrl1_arvo, 1, HAL_MAX_DELAY); //CTRL1_XL
   HAL_I2C_Mem_Write(&hi2c1, 0x6A << 1, 0x11, 1, &ctrl2_arvo, 1, HAL_MAX_DELAY); //CTRL2_G
 
-  float pitch_gyro = 0.0f;
-  float roll_gyro = 0.0f;
+
+  float alpha = 0.98f;
+  float pitch = 0.0f;
+  float roll = 0.0f;
 
   /* USER CODE END 2 */
 
@@ -142,18 +144,16 @@ int main(void)
 		  float gy_dps = gy * 0.00875f;
 		  float gz_dps = gz * 0.00875f;
 
-		  // Integroi: kerää gyron nopeudesta kulma (porras B)
-		  pitch_gyro += gy_dps * dt;
-		  roll_gyro += gx_dps * dt;
-
-		  printf("dt:%.3f  gy_dps:%.1f  pitch_gyro:%.1f\r\n", dt, gy_dps, pitch_gyro);
-		  printf("gx:%.1f  gy:%.1f  gz:%.1f\r\n", gx_dps, gy_dps, gz_dps);
 
 	  float pitch_acc = atan2f(-ax, sqrtf(ay*ay + az*az)) * 180.0f / M_PI;
 
 	  float roll_acc = atan2f(ay, az) * 180.0f / M_PI;
 
-	  printf("pitch: %.1f  roll: %.1f\r\n", pitch_acc, roll_acc);
+	  pitch = alpha * (pitch + (gy_dps * dt)) + ((1.0f - alpha) * pitch_acc);
+	  roll = alpha * (roll + (gx_dps * dt)) + ((1.0f - alpha ) * roll_acc);
+
+
+	  printf("acc:%.1f  FILT:%.1f\r\n", pitch_acc, pitch);
 
 	  HAL_Delay(100);
   }
