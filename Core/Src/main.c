@@ -98,6 +98,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   uint8_t who = 0;
   uint8_t buf[12];
+  uint32_t edellinen_aika = HAL_GetTick();
 
   //Herätä anturi: kirjoita ohjausrekistereihin (tehdään kerran, ennen silmukkaa)
   uint8_t ctrl1_arvo = 0x40;  //104 hz, +-2 g
@@ -106,7 +107,8 @@ int main(void)
   HAL_I2C_Mem_Write(&hi2c1, 0x6A << 1, 0x10, 1, &ctrl1_arvo, 1, HAL_MAX_DELAY); //CTRL1_XL
   HAL_I2C_Mem_Write(&hi2c1, 0x6A << 1, 0x11, 1, &ctrl2_arvo, 1, HAL_MAX_DELAY); //CTRL2_G
 
-
+  float pitch_gyro = 0.0f;
+  float roll_gyro = 0.0f;
 
   /* USER CODE END 2 */
 
@@ -114,7 +116,13 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
+	  uint32_t nyt = HAL_GetTick();
+	  float dt = (nyt - edellinen_aika) / 1000.0f;
+	  edellinen_aika = nyt;
+
+
+
+	/* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
@@ -128,6 +136,18 @@ int main(void)
 	  int16_t ax = (int16_t) buf[7] << 8 | buf[6];
 	  int16_t ay = (int16_t) buf[9] << 8 | buf[8];
 	  int16_t az = (int16_t) buf[11] << 8 | buf[10];
+
+	  //muunna gyron raakalukemat asteiksi sekunnissa (dps)
+		  float gx_dps = gx * 0.00875f;
+		  float gy_dps = gy * 0.00875f;
+		  float gz_dps = gz * 0.00875f;
+
+		  // Integroi: kerää gyron nopeudesta kulma (porras B)
+		  pitch_gyro += gy_dps * dt;
+		  roll_gyro += gx_dps * dt;
+
+		  printf("dt:%.3f  gy_dps:%.1f  pitch_gyro:%.1f\r\n", dt, gy_dps, pitch_gyro);
+		  printf("gx:%.1f  gy:%.1f  gz:%.1f\r\n", gx_dps, gy_dps, gz_dps);
 
 	  float pitch_acc = atan2f(-ax, sqrtf(ay*ay + az*az)) * 180.0f / M_PI;
 
