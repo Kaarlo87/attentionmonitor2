@@ -155,7 +155,22 @@ int main(void)
 
 	  printf("acc:%.1f  FILT:%.1f\r\n", pitch_acc, pitch);
 
-	  HAL_Delay(100);
+	 /** if (HAL_I2C_IsDeviceReady(&hi2c1, 0x3C << 1, 3, HAL_MAX_DELAY) == HAL_OK){
+		  printf("OLED löytyi (0x3C)! \r\n");
+	  } else {
+		  printf("OLED ei löytynyt\r\n");
+	  }*/
+
+	  printf("--Skannataan__\r\n)");
+
+	  for (uint8_t osoite = 1; osoite < 128; osoite++){
+		  if (HAL_I2C_IsDeviceReady(&hi2c1, osoite << 1, 3, HAL_MAX_DELAY) == HAL_OK){
+			  printf("laite löytyi osoitteesta 0x%02X\r\n", osoite);
+
+		  }
+	  }
+	  printf("skannaus valmis");
+	  HAL_Delay(3000);
   }
   /* USER CODE END 3 */
 }
