@@ -117,6 +117,7 @@ int main(void)
   float alpha = 0.98f;
   float pitch = 0.0f;
   float roll = 0.0f;
+  char naytto_teksti[20];
 
   /* USER CODE END 2 */
 
@@ -167,16 +168,14 @@ int main(void)
 		  printf("OLED ei löytynyt\r\n");
 	  }*/
 
-	  printf("--Skannataan__\r\n)");
 
-	  for (uint8_t osoite = 1; osoite < 128; osoite++){
-		  if (HAL_I2C_IsDeviceReady(&hi2c1, osoite << 1, 3, HAL_MAX_DELAY) == HAL_OK){
-			  printf("laite löytyi osoitteesta 0x%02X\r\n", osoite);
+	  ssd1306_Fill(Black);
+	  sprintf(naytto_teksti, "Pitch:%.1f", pitch);
+	  ssd1306_SetCursor(0,0);
+	  ssd1306_WriteString(naytto_teksti, Font_11x18, White);
+	  ssd1306_UpdateScreen();
 
-		  }
-	  }
-	  printf("skannaus valmis");
-	  HAL_Delay(3000);
+	  HAL_Delay(100);
   }
   /* USER CODE END 3 */
 }
