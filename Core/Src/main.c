@@ -24,6 +24,8 @@
 #include <stdio.h>
 #include <stdio.h>
 #include <math.h>
+#include "ssd1306.h"
+#include "ssd1306_fonts.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -96,6 +98,10 @@ int main(void)
   MX_USART2_UART_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+  ssd1306_Init();
+  ssd1306_SetCursor(0,0);
+  ssd1306_WriteString("Hei", Font_11x18, White);
+  ssd1306_UpdateScreen();
   uint8_t who = 0;
   uint8_t buf[12];
   uint32_t edellinen_aika = HAL_GetTick();
