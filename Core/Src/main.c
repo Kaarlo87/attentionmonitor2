@@ -114,7 +114,7 @@ int main(void)
   HAL_I2C_Mem_Write(&hi2c1, 0x6A << 1, 0x11, 1, &ctrl2_arvo, 1, HAL_MAX_DELAY); //CTRL2_G
 
 
-  float alpha = 0.98f;
+  float alpha = 0.90f;
   float pitch = 0.0f;
   float roll = 0.0f;
   char naytto_teksti[20];
@@ -172,6 +172,9 @@ int main(void)
 	  ssd1306_Fill(Black);
 	  sprintf(naytto_teksti, "Pitch:%.1f", pitch);
 	  ssd1306_SetCursor(0,0);
+	  ssd1306_WriteString(naytto_teksti, Font_11x18, White);
+	  sprintf(naytto_teksti, "Roll:%.1f", roll);
+	  ssd1306_SetCursor(0,20);
 	  ssd1306_WriteString(naytto_teksti, Font_11x18, White);
 	  ssd1306_UpdateScreen();
 
