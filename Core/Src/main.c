@@ -176,6 +176,15 @@ int main(void)
 	  sprintf(naytto_teksti, "Roll:%.1f", roll);
 	  ssd1306_SetCursor(0,20);
 	  ssd1306_WriteString(naytto_teksti, Font_11x18, White);
+
+	  int keski_x = 64;
+	  int keski_y = 32;
+	  int puoli_pituus = 40;
+
+	  float kulma_rad = roll * M_PI / 180.0f;
+	  int dx = puoli_pituus * cosf(kulma_rad);
+	  int dy = puoli_pituus * sinf(kulma_rad);
+	  ssd1306_Line(keski_x - dx, keski_y + dy, keski_x + dx, keski_y - dy, White);
 	  ssd1306_UpdateScreen();
 
 	  HAL_Delay(100);
