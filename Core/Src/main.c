@@ -168,23 +168,36 @@ int main(void)
 		  printf("OLED ei löytynyt\r\n");
 	  }*/
 
-
 	  ssd1306_Fill(Black);
+	  /**
 	  sprintf(naytto_teksti, "Pitch:%.1f", pitch);
 	  ssd1306_SetCursor(0,0);
 	  ssd1306_WriteString(naytto_teksti, Font_11x18, White);
 	  sprintf(naytto_teksti, "Roll:%.1f", roll);
 	  ssd1306_SetCursor(0,20);
 	  ssd1306_WriteString(naytto_teksti, Font_11x18, White);
+	  **/
 
 	  int keski_x = 64;
-	  int keski_y = 32;
+	  int keski_y = 32 + pitch * 1.5f;
+	  if (keski_y < 0) keski_y = 0;
+	  if (keski_y > 63) keski_y = 63;
 	  int puoli_pituus = 40;
 
 	  float kulma_rad = roll * M_PI / 180.0f;
 	  int dx = puoli_pituus * cosf(kulma_rad);
 	  int dy = puoli_pituus * sinf(kulma_rad);
-	  ssd1306_Line(keski_x - dx, keski_y + dy, keski_x + dx, keski_y - dy, White);
+
+
+	  int vasen_y = keski_y - dy;
+	  int oikea_y = keski_y + dy;
+
+	  	  if (vasen_y < 0) vasen_y = 0;
+	  	  if (vasen_y > 63) vasen_y = 63;
+	  	  if (oikea_y < 0) oikea_y = 0;
+	  	  if (oikea_y > 63) oikea_y = 63;
+
+	  ssd1306_Line(keski_x - dx, vasen_y, keski_x + dx, oikea_y, White);
 	  ssd1306_UpdateScreen();
 
 	  HAL_Delay(100);
