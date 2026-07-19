@@ -30,6 +30,8 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+typedef enum { STATE_SAFE, STATE_WARNING, STATE_DANGER } AttitudeState;
+
 
 /* USER CODE END PTD */
 
@@ -105,7 +107,7 @@ int main(void)
   ssd1306_Init();
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  //HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 
   ssd1306_SetCursor(0,0);
 
@@ -127,6 +129,7 @@ int main(void)
   float pitch = 0.0f;
   float roll = 0.0f;
   char naytto_teksti[20];
+  AttitudeState tila = STATE_SAFE;
 
   /* USER CODE END 2 */
 
@@ -170,6 +173,17 @@ int main(void)
 
 
 	  printf("acc:%.1f  FILT:%.1f\r\n", pitch_acc, pitch);
+	  if (fabsf(pitch) < 15.0f && fabsf(roll) < 30.0f) {
+		  tila = STATE_SAFE;
+	  } else if(fabsf(pitch) < 30.0f && fabsf(roll) < 60.0f){
+		  tila = STATE_WARNING;
+	  }else{
+		  tila = STATE_DANGER;
+	  }
+	  printf("Tila: %d\r\n", tila);
+
+
+
 
 	 /** if (HAL_I2C_IsDeviceReady(&hi2c1, 0x3C << 1, 3, HAL_MAX_DELAY) == HAL_OK){
 		  printf("OLED löytyi (0x3C)! \r\n");
