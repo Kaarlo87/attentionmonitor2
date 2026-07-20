@@ -173,12 +173,26 @@ int main(void)
 
 
 	  printf("acc:%.1f  FILT:%.1f\r\n", pitch_acc, pitch);
-	  if (fabsf(pitch) < 15.0f && fabsf(roll) < 30.0f) {
-		  tila = STATE_SAFE;
-	  } else if(fabsf(pitch) < 30.0f && fabsf(roll) < 60.0f){
-		  tila = STATE_WARNING;
-	  }else{
-		  tila = STATE_DANGER;
+	  // ylös: sama raja kuin ennen (kumpi tahansa kulma yli -> ei enää turvassa)
+	  if(tila == STATE_SAFE){
+		  if (fabsf(pitch) >= 30.0f || fabsf(roll) >= 60.0f){
+			  tila = STATE_DANGER;
+		  }else if(fabsf(pitch) >= 15.0f || fabsf(roll) >= 30.0f){
+			  tila = STATE_WARNING;
+
+		  }
+	  }else if(tila == STATE_WARNING){
+		  // ylös DANGERiin heti, mutta alas SAFEen vasta selvästi alempana (12 / 25)
+		  		  if (fabsf(pitch) >= 30.0f || fabsf(roll) >= 60.0f) {
+		  			  tila = STATE_DANGER;
+		  		  } else if (fabsf(pitch) < 12.0f && fabsf(roll) < 25.0f) {
+		  			  tila = STATE_SAFE;
+		  		  }
+		  	  } else { // STATE_DANGER
+		  		  // alas WARNINGiin vasta selvästi alempana (27 / 55)
+		  		  if (fabsf(pitch) < 27.0f && fabsf(roll) < 55.0f) {
+		  			  tila = STATE_WARNING;
+		  		  }
 	  }
 	  printf("Tila: %d\r\n", tila);
 
