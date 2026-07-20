@@ -130,6 +130,9 @@ int main(void)
   float roll = 0.0f;
   char naytto_teksti[20];
   AttitudeState tila = STATE_SAFE;
+  float gy_puskuri [10] = {0};
+  int gy_indeksi = 0;
+
 
   /* USER CODE END 2 */
 
@@ -161,6 +164,15 @@ int main(void)
 	  //muunna gyron raakalukemat asteiksi sekunnissa (dps)
 		  float gx_dps = gx * 0.00875f;
 		  float gy_dps = gy * 0.00875f;
+		  gy_puskuri[gy_indeksi] = gy_dps;
+		  gy_indeksi = (gy_indeksi + 1) % 10;
+
+		  float gy_summa = 0.0f;
+		  for (int i = 0; i < 10; i++){
+			  gy_summa = gy_summa + gy_puskuri[i];
+		  }
+		  float gy_suodatettu = gy_summa / 10.0f;
+
 		  float gz_dps = gz * 0.00875f;
 
 
@@ -170,6 +182,10 @@ int main(void)
 
 	  pitch = alpha * (pitch + (gy_dps * dt)) + ((1.0f - alpha) * pitch_acc);
 	  roll = alpha * (roll + (gx_dps * dt)) + ((1.0f - alpha ) * roll_acc);
+
+	  float T_lookahead = 1.5f;
+	  float pitch_pred = pitch + gy_suodatettu * T_lookahead;
+	  printf("Pitch nyt: %.1f  Ennuste: %.1f\r\n", pitch, pitch_pred);
 
 
 	  printf("acc:%.1f  FILT:%.1f\r\n", pitch_acc, pitch);
