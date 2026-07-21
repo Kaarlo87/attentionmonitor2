@@ -186,6 +186,10 @@ int main(void)
 	  float T_lookahead = 1.5f;
 	  float pitch_pred = pitch + gy_suodatettu * T_lookahead;
 	  printf("Pitch nyt: %.1f  Ennuste: %.1f\r\n", pitch, pitch_pred);
+	  if (fabsf(pitch_pred) >= 30.0f){
+		  printf("Ennuste: Danger tulossa!\r\n");
+
+	  }
 
 
 	  printf("acc:%.1f  FILT:%.1f\r\n", pitch_acc, pitch);
