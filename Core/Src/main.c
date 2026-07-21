@@ -255,6 +255,16 @@ int main(void)
 	  	  if (oikea_y > 63) oikea_y = 63;
 
 	  ssd1306_Line(keski_x - dx, vasen_y, keski_x + dx, oikea_y, White);
+	  if(tila == STATE_DANGER){
+
+		  ssd1306_SetCursor(0,46);
+		  ssd1306_WriteString("DANGER!!", Font_11x18, White);
+		  ssd1306_InvertRectangle(0, 0, 127, 63);
+
+	  }else if (tila == STATE_WARNING){
+		 ssd1306_SetCursor(0,46);
+		 ssd1306_WriteString("Warning!", Font_11x18, White);
+	  }
 	  ssd1306_UpdateScreen();
 
 	  HAL_Delay(100);
