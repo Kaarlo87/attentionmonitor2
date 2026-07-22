@@ -105,8 +105,6 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   ssd1306_Init();
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
   //HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 
   ssd1306_SetCursor(0,0);
@@ -258,13 +256,20 @@ int main(void)
 	  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 	  if(tila == STATE_DANGER){
 		  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
 		  ssd1306_SetCursor(0,46);
 		  ssd1306_WriteString("DANGER!!", Font_11x18, White);
 		  ssd1306_InvertRectangle(0, 0, 127, 63);
 
 	  }else if (tila == STATE_WARNING){
 		 ssd1306_SetCursor(0,46);
+		 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+		 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
 		 ssd1306_WriteString("Warning!", Font_11x18, White);
+	  }else if (tila == STATE_SAFE){
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
 	  }
 	  ssd1306_UpdateScreen();
 
