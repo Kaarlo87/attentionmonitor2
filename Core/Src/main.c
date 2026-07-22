@@ -255,8 +255,9 @@ int main(void)
 	  	  if (oikea_y > 63) oikea_y = 63;
 
 	  ssd1306_Line(keski_x - dx, vasen_y, keski_x + dx, oikea_y, White);
+	  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 	  if(tila == STATE_DANGER){
-
+		  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 		  ssd1306_SetCursor(0,46);
 		  ssd1306_WriteString("DANGER!!", Font_11x18, White);
 		  ssd1306_InvertRectangle(0, 0, 127, 63);
