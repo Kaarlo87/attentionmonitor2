@@ -132,7 +132,7 @@ int main(void)
   float P[2][2] = { {1.0f, 0.0f}, {0.0f, 1.0f} }; // epavarmuus: kulma, bias, ja niiden kytkos
   float Q_kulma = 0.001f; // kulma-arvion ronsyily (saatoruuvi)
   float Q_bias = 0.003f;  // kuinka nopeasti bias saa liikkua (saatoruuvi)
-  float R = 0.5f;   // kiihtyvyysanturin kohina (saatoruuvi)
+  float R_perus = 0.5f;   // kiihtyvyysanturin kohina (saatoruuvi)
 
   char naytto_teksti[20];
   AttitudeState tila = STATE_SAFE;
@@ -181,6 +181,12 @@ int main(void)
 
 		  float gz_dps = gz * 0.00875f;
 
+		  float ax_g = ax * 0.000061f;
+		  float ay_g = ay * 0.000061f;
+		  float az_g = az * 0.000061f;
+
+		  float acc_voimakkuus = sqrtf(ax_g*ax_g + ay_g*ay_g + az_g*az_g);
+		  float liike = fabsf(acc_voimakkuus - 1.0f);  // 0 = paikallaan, iso = tarinaa
 
 	  float pitch_acc = atan2f(-ax, sqrtf(ay*ay + az*az)) * 180.0f / M_PI;
 
@@ -188,6 +194,8 @@ int main(void)
 
 	  pitch = alpha * (pitch + (gy_dps * dt)) + ((1.0f - alpha) * pitch_acc);
 	  roll = alpha * (roll + (gx_dps * dt)) + ((1.0f - alpha ) * roll_acc);
+
+	  float R = R_perus * (1.0f + 50.0f * liike);
 
 	  float rate = gy_dps - bias_kalman; // puhdistettu kulmanopeus: bias vahennetty pois
 	  pitch_kalman = pitch_kalman + rate * dt; // integroi puhdistettua nopeutta
@@ -222,6 +230,8 @@ int main(void)
 
 	  printf("acc:%.1f  FILT:%.1f  KALMAN:%.1f   Gyro: %.1f \r\n", pitch_acc, pitch, pitch_kalman, gy_dps);
 	  // ylös: sama raja kuin ennen (kumpi tahansa kulma yli -> ei enää turvassa)
+	  printf("Liike: %.3f\r\n", liike);
+
 	  if(tila == STATE_SAFE){
 		  if (fabsf(pitch) >= 30.0f || fabsf(roll) >= 60.0f){
 			  tila = STATE_DANGER;
