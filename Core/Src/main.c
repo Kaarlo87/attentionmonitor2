@@ -222,7 +222,7 @@ int main(void)
 	  P[1][1] -= K1 * P01;   // biasin epavarmuus pienenee, vaikka mitattiin vain kulmaa
 
 	  float T_lookahead = 1.5f;
-	  float pitch_pred = pitch + gy_suodatettu * T_lookahead;
+	  float pitch_pred = pitch_kalman + gy_suodatettu * T_lookahead;
 
 	  printf("Pitch nyt: %.1f  Ennuste: %.1f \r\n", pitch, pitch_pred);
 	  if (fabsf(pitch_pred) >= 30.0f){
@@ -236,22 +236,22 @@ int main(void)
 	  printf("Liike: %.3f\r\n", liike);
 
 	  if(tila == STATE_SAFE){
-		  if (fabsf(pitch) >= 30.0f || fabsf(roll) >= 60.0f){
+		  if (fabsf(pitch_kalman) >= 30.0f || fabsf(roll) >= 60.0f){
 			  tila = STATE_DANGER;
-		  }else if(fabsf(pitch) >= 15.0f || fabsf(roll) >= 30.0f){
+		  }else if(fabsf(pitch_kalman) >= 15.0f || fabsf(roll) >= 30.0f){
 			  tila = STATE_WARNING;
 
 		  }
 	  }else if(tila == STATE_WARNING){
 		  // ylös DANGERiin heti, mutta alas SAFEen vasta selvästi alempana (12 / 25)
-		  		  if (fabsf(pitch) >= 30.0f || fabsf(roll) >= 60.0f) {
+		  		  if (fabsf(pitch_kalman) >= 30.0f || fabsf(roll) >= 60.0f) {
 		  			  tila = STATE_DANGER;
-		  		  } else if (fabsf(pitch) < 12.0f && fabsf(roll) < 25.0f) {
+		  		  } else if (fabsf(pitch_kalman) < 12.0f && fabsf(roll) < 25.0f) {
 		  			  tila = STATE_SAFE;
 		  		  }
 		  	  } else { // STATE_DANGER
 		  		  // alas WARNINGiin vasta selvästi alempana (27 / 55)
-		  		  if (fabsf(pitch) < 27.0f && fabsf(roll) < 55.0f) {
+		  		  if (fabsf(pitch_kalman) < 27.0f && fabsf(roll) < 55.0f) {
 		  			  tila = STATE_WARNING;
 		  		  }
 	  }
@@ -277,7 +277,7 @@ int main(void)
 	  **/
 
 	  int keski_x = 64;
-	  int keski_y = 32 + pitch * 1.5f;
+	  int keski_y = 32 + pitch_kalman * 1.5f;
 	  if (keski_y < 0) keski_y = 0;
 	  if (keski_y > 63) keski_y = 63;
 	  int puoli_pituus = 40;
