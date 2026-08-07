@@ -130,7 +130,7 @@ int main(void)
   float bias_kalman = 0.0f; // arvio gyron biasista
 
   float P[2][2] = { {1.0f, 0.0f}, {0.0f, 1.0f} }; // epavarmuus: kulma, bias, ja niiden kytkos
-  float Q_kulma = 0.001f; // kulma-arvion ronsyily (saatoruuvi)
+  float Q_kulma_perus = 0.001f; // kulma-arvion ronsyily (saatoruuvi)
   float Q_bias = 0.003f;  // kuinka nopeasti bias saa liikkua (saatoruuvi)
   float R_perus = 0.5f;   // kiihtyvyysanturin kohina (saatoruuvi)
 
@@ -195,6 +195,7 @@ int main(void)
 	  pitch = alpha * (pitch + (gy_dps * dt)) + ((1.0f - alpha) * pitch_acc);
 	  roll = alpha * (roll + (gx_dps * dt)) + ((1.0f - alpha ) * roll_acc);
 
+	  float Q_kulma = Q_kulma_perus * (1.0f + fabsf(gy_dps) / 100.0f);
 	  float R = R_perus * (1.0f + 50.0f * liike);
 
 	  float rate = gy_dps - bias_kalman; // puhdistettu kulmanopeus: bias vahennetty pois
@@ -203,6 +204,7 @@ int main(void)
 	  P[0][1] -= dt * P[1][1];
 	  P[1][0] -= dt * P[1][1];
 	  P[1][1] += Q_bias * dt;
+
 	  float S = P[0][0] + R;
 	  float K0 = P[0][0] / S;
 	  float K1 = P[0][1] / S;
@@ -214,13 +216,14 @@ int main(void)
 	  float P00 = P[0][0];
 	  float P01 = P[0][1];
 
-	  P[0][0] -= K0 * P00;
-	  P[0][1] -= K0 * P01;
-	  P[1][0] -= K1 * P00;
-	  P[1][1] -= K1 * P01;
+	  P[0][0] -= K0 * P00;   // kulman epavarmuus: iso K0 = uskoin mittausta = tiedan nyt tarkasti
+	  P[0][1] -= K0 * P01;   // kytkos kutistuu kulman vahvistuksella
+	  P[1][0] -= K1 * P00;   // eri kertoimet kuin ylla, mutta tulos sama: symmetria sailyy
+	  P[1][1] -= K1 * P01;   // biasin epavarmuus pienenee, vaikka mitattiin vain kulmaa
 
 	  float T_lookahead = 1.5f;
 	  float pitch_pred = pitch + gy_suodatettu * T_lookahead;
+
 	  printf("Pitch nyt: %.1f  Ennuste: %.1f \r\n", pitch, pitch_pred);
 	  if (fabsf(pitch_pred) >= 30.0f){
 		  printf("Ennuste: Danger tulossa!\r\n");
