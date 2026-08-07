@@ -126,6 +126,14 @@ int main(void)
   float alpha = 0.90f;
   float pitch = 0.0f;
   float roll = 0.0f;
+  float pitch_kalman = 0.0f; // arvio kulmasta
+  float bias_kalman = 0.0f; // arvio gyron biasista
+
+  float P[2][2] = { {1.0f, 0.0f}, {0.0f, 1.0f} }; // epavarmuus: kulma, bias, ja niiden kytkos
+  float Q_kulma = 0.001f; // kulma-arvion ronsyily (saatoruuvi)
+  float Q_bias = 0.003f;  // kuinka nopeasti bias saa liikkua (saatoruuvi)
+  float R = 0.5f;   // kiihtyvyysanturin kohina (saatoruuvi)
+
   char naytto_teksti[20];
   AttitudeState tila = STATE_SAFE;
   float gy_puskuri [10] = {0};
@@ -181,16 +189,38 @@ int main(void)
 	  pitch = alpha * (pitch + (gy_dps * dt)) + ((1.0f - alpha) * pitch_acc);
 	  roll = alpha * (roll + (gx_dps * dt)) + ((1.0f - alpha ) * roll_acc);
 
+	  float rate = gy_dps - bias_kalman; // puhdistettu kulmanopeus: bias vahennetty pois
+	  pitch_kalman = pitch_kalman + rate * dt; // integroi puhdistettua nopeutta
+	  P[0][0] += dt * (dt * P[1][1] - P[0][1] - P[1][0] + Q_kulma);
+	  P[0][1] -= dt * P[1][1];
+	  P[1][0] -= dt * P[1][1];
+	  P[1][1] += Q_bias * dt;
+	  float S = P[0][0] + R;
+	  float K0 = P[0][0] / S;
+	  float K1 = P[0][1] / S;
+	  float y = pitch_acc - pitch_kalman; // kuinka vaarassa arvioni oli
+	  pitch_kalman = pitch_kalman + K0 * y;  // korjaa kulmaa mittauksella
+	  bias_kalman = bias_kalman + K1 * y;  // korjaa biasia
+
+
+	  float P00 = P[0][0];
+	  float P01 = P[0][1];
+
+	  P[0][0] -= K0 * P00;
+	  P[0][1] -= K0 * P01;
+	  P[1][0] -= K1 * P00;
+	  P[1][1] -= K1 * P01;
+
 	  float T_lookahead = 1.5f;
 	  float pitch_pred = pitch + gy_suodatettu * T_lookahead;
-	  printf("Pitch nyt: %.1f  Ennuste: %.1f\r\n", pitch, pitch_pred);
+	  printf("Pitch nyt: %.1f  Ennuste: %.1f \r\n", pitch, pitch_pred);
 	  if (fabsf(pitch_pred) >= 30.0f){
 		  printf("Ennuste: Danger tulossa!\r\n");
 
 	  }
 
 
-	  printf("acc:%.1f  FILT:%.1f\r\n", pitch_acc, pitch);
+	  printf("acc:%.1f  FILT:%.1f  KALMAN:%.1f   Gyro: %.1f \r\n", pitch_acc, pitch, pitch_kalman, gy_dps);
 	  // ylös: sama raja kuin ennen (kumpi tahansa kulma yli -> ei enää turvassa)
 	  if(tila == STATE_SAFE){
 		  if (fabsf(pitch) >= 30.0f || fabsf(roll) >= 60.0f){
