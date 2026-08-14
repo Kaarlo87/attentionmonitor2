@@ -49,3 +49,13 @@ A steep horizon line, the attitude has crossed into the danger zone.
 The project was built one stage at a time, each stage ending in something that worked: blinking LED → printf over UART → IMU responding over I2C → angles computed → display → alerts → state machine → prediction. Every working stage was committed separately.
 
 The sensor fusion was written from scratch on purpose. A complementary filter came first, so that gyroscope drift and accelerometer noise could be observed directly, and only then the Kalman filter. The hard part was not writing the algorithm but making it behave on noisy real-world data.
+
+### Filter in action
+
+![Kalman filter compared to gyroscope sensor](Kalma_vs_gyro.png)
+
+Gyroscope starts to cumulate it's bias error, but Kalman filter can approximate the bias error and filter it out, and that way keeping the pitch smooth.
+
+![Kalman filter compared to accelerometer](Kalman_vs_acc.png)
+
+Accelerometer jumps up and down when the device is moving, but Kalman filter then relies more on the gyroscope and keeps the right angle.
