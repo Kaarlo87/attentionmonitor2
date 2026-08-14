@@ -8,11 +8,22 @@ An STM32-based device that measures and interprets aircraft attitude in real tim
 ### Normal attitude (SAFE)
 <img src="IMG_0238.jpeg" width="300">
 
+
+The horizon line sits level, aircraft is within safe limits.
+
+
 ### Warning
 <img src="IMG_0265.jpeg" width="300">
 
+The horizon line tilts as the attitude approaches the warning threshold.
+(The pictures don't show clearly the horizon line)
+
 ### Danger
 <img src="IMG_0282.png" width="300">
+
+A steep horizon line, the attitude has crossed into the danger zone.
+(The pictures don't show clearly the horizon line)
+
 
 ## Hardware
 
