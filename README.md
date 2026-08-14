@@ -1,6 +1,8 @@
 # Aircraft Attitude Monitor (STM32)
 
 An STM32-based device that measures and interprets aircraft attitude in real time. It reads an IMU over I2C, fuses gyroscope and accelerometer data into a stable angle estimate using a hand-written Kalman filter, draws the attitude as an artificial horizon on an OLED display, and warns of a dangerous attitude with an LED and a buzzer, before the limit is actually crossed.
+
+
 <img src="IMG_0283.jpeg" width="300">
 
 ### Normal attitude (SAFE)
